@@ -120,26 +120,26 @@ window.addEventListener('DOMContentLoaded', function() { //Its starts work when 
 
         statusMessage.classList.add('status');
 
-    form.addEventListener('submit', function(event) {   // 'submit' на форму!
+    form.addEventListener('submit', function(event) {
         event.preventDefault();
         form.appendChild(statusMessage);
 
         let request = new XMLHttpRequest();
         request.open('POST', 'server.php');
-        request.setRequestHeader ('Content-type', 'application/json; charset=utf-8');
+        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 
-        let formData = new FormData(form);  //метод получающий все данные из инпутов формы
-        
-        let obj = {}; // объект, кот будет хранить данные заполнения форм
+        let formData = new FormData(form);
+
+        let obj = {};
         formData.forEach(function(value, key) {
             obj[key] = value;
         });
         let json = JSON.stringify(obj);
-        
+
         request.send(json);
 
         request.addEventListener('readystatechange', function() {
-            if(request.readyState <4) {
+            if (request.readyState < 4) {
                 statusMessage.innerHTML = message.loading;
             } else if(request.readyState === 4 && request.status == 200) {
                 statusMessage.innerHTML = message.success;
@@ -152,45 +152,154 @@ window.addEventListener('DOMContentLoaded', function() { //Its starts work when 
             input[i].value = '';
         }
     });
+
+    // function sendForm(elem) {
+    //     elem.addEventListener('submit', function(e) {   // 'submit' на форму!
+    //         e.preventDefault();
+    //         elem.appendChild(statusMessage);
+
+    //         let formData = new FormData(elem);  //метод получающий все данные из инпутов формы
+            
+    //         // let obj = {}; // объект, кот будет хранить данные заполнения форм
+    //         // formData.forEach(function(value, key) {
+    //         //     obj[key] = value;
+    //         // });
+    //         // let json = JSON.stringify(obj);
+            
+    //         // request.send(json);
+
+    //         function postData(data) {
+    //             return new Promise(function(resolve, reject) {
+    //                 let request = new XMLHttpRequest();
+
+    //                 request.open('POST', 'server.php');
+
+    //                 request.setRequestHeader ('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
+
+    //                 request.onreadystatechange = function() {
+    //                     if(request.readyState <4) {
+    //                         resolve();
+    //                     } else if(request.readyState === 4) {
+    //                         if (request.status == 200  && request.status <300) {
+    //                             resolve();
+    //                         } else {
+    //                             reject();
+    //                         }
+    //                     }
+    //                 };
+    //                 request.send(data);
+    //             });
+    //         } // end post data
+
+    //         function clearInput() {
+    //             for (let i = 0; i < input.length; i++) {
+    //                 input[i].value = '';
+    //             }
+    //         }
+            
+    //         postData(formData)
+    //             .then(()=> statusMessage.innerHTML = message.loading)
+    //             .then(()=> statusMessage.innerHTML = message.success)
+    //             .сath(()=> statusMessage.innerHTML = message.failure)
+    //             .then(clearInput);
+    //     });
     
-    //last form
-    
-    let formLast = document.getElementById('form'),
-        inputLast = formLast.getElementsByTagName('input'),
-        statusMessages = document.createElement('div');
+    // }
+    // sendForm(form);
+    // sendForm(formBottom);
 
-        statusMessages.classList.add('status');
+    // Slider
+    let slideIndex = 1,
+        slides = document.querySelectorAll('.slider-item'),
+        prev = document.querySelector('.prev'),
+        next = document.querySelector('.next'),
+        dotsWrap = document.querySelector('.slider-dots'),
+        dots = document.querySelectorAll('.dot');
 
-    formLast.addEventListener('submit', function(event) {   // 'submit' на форму!
-        event.preventDefault();
-        formLast.appendChild(statusMessages);
+    showSlides(slideIndex);
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        request.setRequestHeader ('Content-type', 'application/json; charset=utf-8');
+    function showSlides(n) {
 
-        let formData = new FormData(formLast);  //метод получающий все данные из инпутов формы
-        
-        let obj = {}; // объект, кот будет хранить данные заполнения форм
-        formData.forEach(function(value, key) {
-            obj[key] = value;
-        });
-        let json = JSON.stringify(obj);
-        
-        request.send(json);
-
-        request.addEventListener('readystatechange', function() {
-            if(request.readyState <4) {
-                statusMessages.innerHTML = message.loading;
-            } else if(request.readyState === 4 && request.status == 200) {
-                statusMessages.innerHTML = message.success;
-            } else {
-                statusMessages.innerHTML = message.failure;
-            }
-        });
-
-        for (let i = 0; i < inputLast.length; i++) {
-            inputLast[i].value = '';
+        if (n > slides.length) {
+            slideIndex = 1;
         }
-    });   
-}); 
+        if (n < 1) {
+            slideIndex = slides.length;
+        }
+
+        slides.forEach((item) => item.style.display = 'none');
+        // for (let i = 0; i < slides.length; i++) {
+        //     slides[i].style.display = 'none';
+        // }
+        dots.forEach((item) => item.classList.remove('dot-active'));
+
+        slides[slideIndex - 1].style.display = 'block';
+        dots[slideIndex - 1].classList.add('dot-active');
+    }
+
+    function plusSlide(n) {
+        showSlides(slideIndex +=n);
+    }
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+    prev.addEventListener('click', function() {
+        plusSlide(-1);
+    });
+
+    next.addEventListener('click', function() {
+        plusSlide(1);
+    });
+
+    dotsWrap.addEventListener('click', function(e){ // здесь используем делигирование. Главное проверять потом, что мы используем событие именно уже на дочерних элементах  
+        for (let i = 0; i < dots.length + 1 ; i++) { // +1 -тк 4 кнопка должна работать
+            if (e.target.classList.contains('dot') && e.target == dots[i-1]) { // -1  тк учитываем индекс кнопок(начинаются с 0)
+                currentSlide(i);
+            }
+        }
+    });
+
+    //Calc
+
+    let persons = document.querySelectorAll('.counter-block-input')[0],
+        restDays = document.querySelectorAll('.counter-block-input')[1],
+        place = document.getElementById('select'),
+        totalValue = document.getElementById('total'),
+        personsSum = 0,
+        daysSum = 0,
+        total = 0;
+
+    totalValue.innerHTML = 0;
+
+    persons.addEventListener('change', function() {
+        personsSum = +this.value;
+        total = (daysSum + personsSum)*4000;
+
+        if(restDays.value == '' || this.value == '') {
+            totalValue.innerHTML = 0;
+        } else {
+            totalValue.innerHTML = total;
+        }
+    });
+
+    restDays.addEventListener('change', function() {
+        daysSum = +this.value;
+        total = (daysSum + personsSum)*4000;
+
+        if(persons.value == ''|| this.value == '') {
+            totalValue.innerHTML = 0;
+        } else {
+            totalValue.innerHTML = total;
+        }
+    });
+
+    place.addEventListener('change', function() {
+        if (restDays.value == '' || persons.value == '') {
+            totalValue.innerHTML = 0;
+        } else {
+            let a = total;
+            totalValue.innerHTML = a * this.options[this.selectedIndex].value;
+        }
+    });
+
+});
